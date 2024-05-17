@@ -6,6 +6,7 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
+from dotenv import load_dotenv
 
 from helpers import apology, login_required, lookup, usd
 
@@ -26,8 +27,10 @@ Session(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
 
+# Load environment variables from .env file
+load_dotenv()
 # Make sure API key is set
-if not os.environ.get("API_KEY"):
+if not os.getenv('API_KEY'):
     raise RuntimeError("API_KEY not set")
 
 
@@ -343,3 +346,6 @@ def sell():
         flash("Sold!")
 
         return redirect("/")
+
+if __name__ == "__main__":
+    app.run(debug=True)
