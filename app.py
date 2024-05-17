@@ -7,7 +7,6 @@ from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from dotenv import load_dotenv
-
 from helpers import apology, login_required, lookup, usd
 
 # Configure application
@@ -94,7 +93,7 @@ def buy():
 
         stock = lookup(symbol)
 
-        if stock == None:
+        if stock is None:
             return apology("symbol does not exists")
 
         if not shares:
@@ -207,7 +206,7 @@ def quote():
 
         stock = lookup(symbol)
 
-        if stock == None:
+        if stock is None:
             return apology("symbol does not exists")
         print(stock)
         return render_template("quoted.html", name=stock["name"], price=stock["price"], symbol=stock["symbol"])
@@ -347,5 +346,27 @@ def sell():
 
         return redirect("/")
 
+
+def initialize_db():
+    current_dir = os.getcwd()
+    db_file = os.path.join(current_dir, "finance.db")
+    if os.path.exists(db_file):
+
+        db.execute("""
+        CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL, hash TEXT NOT NULL, cash NUMERIC NOT NULL DEFAULT 10000.00);
+        """)
+        db.execute("""
+        CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        user_id INTEGER,
+        symbol TEXT,
+        shares INTEGER,
+        price REAL,
+        date TIMESTAMP, name TEXT, trans_type TEXT,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+        );
+    """)
+
+
 if __name__ == "__main__":
+    initialize_db()
     app.run(debug=True)
